@@ -7,7 +7,7 @@ Contributing to formal theorem proving in GitHub repos
 
 ## Roadmap
 1) Basic architecture: 
-   2) Lean-dojo + searching + enhanced LLM for lean theorem proving
+   2) Lean-dojo + searching + enhanced LLM for lean theorem proving, verify it on simple benchmarks: minif2f
    3) a solution to translate informal theorem into formal one (in Lean 4)
 2) Key questions: to be explored
 
