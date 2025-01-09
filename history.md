@@ -52,3 +52,7 @@ lean-dojo 还会遇到超时的问题
     UnicodeError: label empty or too long
 
 我打算改造lean-dojo成本地的...需要些日子
+
+## 2025-1-9
+
+我在LeanDojo上提问了 https://github.com/lean-dojo/LeanDojo/discussions/219
