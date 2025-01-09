@@ -58,3 +58,12 @@ lean-dojo 还会遇到超时的问题
 我在LeanDojo上提问了 https://github.com/lean-dojo/LeanDojo/discussions/219
 
 翻了一下LeanDojo的文档，他们也给社区贡献了一些定理的证明，It discovers [33 proofs in miniF2F](https://github.com/facebookresearch/miniF2F/pull/13) and [39 proofs in ProofNet](https://github.com/zhangir-azerbayev/ProofNet/pull/14) 
+
+我注意到leandojo实际上是重点提供了一个docker,然后在里面做lean的事情,其实如果在native的环境下,会方便很多
+大量的leandojo的配置都是linux的,比如并行,在window上无法运行
+还有一个ast文件跟库面的冲突,可以rename成ast_new
+
+而且其重点就是从git将repo拖下来之后,用lake build
+由于网络太慢,可以自己从github上,拖
+1. lean的4.7.0版本,放到 用户/.elan后面, 用elan show可以看版本
+2. matlib的4.7.0版本,放到.lake里面 https://github.com/leanprover-community/mathlib4/releases/tag/v4.7.0 lake (好像不行)
