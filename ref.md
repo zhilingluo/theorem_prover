@@ -27,3 +27,5 @@ lean-star paper https://arxiv.org/pdf/2407.10040
 lean-dojo user guide https://leandojo.readthedocs.io/en/latest/user-guide.html
 
 PutnamBench leaderboard https://trishullab.github.io/PutnamBench/leaderboard.html
+
+lean-dojo-chatgpt https://github.com/lean-dojo/LeanDojoChatGPT

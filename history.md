@@ -56,3 +56,5 @@ lean-dojo 还会遇到超时的问题
 ## 2025-1-9
 
 我在LeanDojo上提问了 https://github.com/lean-dojo/LeanDojo/discussions/219
+
+翻了一下LeanDojo的文档，他们也给社区贡献了一些定理的证明，It discovers [33 proofs in miniF2F](https://github.com/facebookresearch/miniF2F/pull/13) and [39 proofs in ProofNet](https://github.com/zhangir-azerbayev/ProofNet/pull/14) 
