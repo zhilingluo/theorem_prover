@@ -64,7 +64,7 @@ lean-dojo 还会遇到超时的问题
 还有一个ast文件跟库面的冲突,可以rename成ast_new
 
 由于网络太慢,可以自己从github上,拖
-1. lean的4.7.0版本,放到 用户/.elan后面, 用elan show可以看版本
+1. lean的4.7.0版本,放到 用户/.elan/toolchains/leanprover--lean4---v4.7.0 , 用elan show可以看版本
 2. matlib的4.7.0版本,放到.lake里面 https://github.com/leanprover-community/mathlib4/releases/tag/v4.7.0 lake (好像不行)
 
     
@@ -81,3 +81,13 @@ lean-dojo 还会遇到超时的问题
         sorry
 这一堆事情其实都应该在一个临时目录中做，不要动原始的repo
 
+## 2025-1-10
+我的提问收到的回复 https://github.com/lean-dojo/LeanDojo/pull/179
+
+然而看起来他的修改跟我的类似,还是需要在dojo类做一些改动才行
+
+我的改动已经可以运行了,然而qwenmax只保留了message接口,不太适合目前需要的complete模式,惊讶的是openai的接口里面也删除了complete接口,真是可惜.
+
+message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三个的格式是对的,我试着增加了一些后处理代码,这也不太靠谱
+
+棒棒的github镜像! https://gitclone.com/  感谢他们
