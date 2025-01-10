@@ -8,7 +8,7 @@ import random
 import dashscope
 from http import HTTPStatus
 
-dashscope.api_key = "sk-858b6321ed894be29c06aa1f6ef7b76c"#os.environ['dashscope_key']
+dashscope.api_key =os.environ['dashscope_key']
 
 
 
