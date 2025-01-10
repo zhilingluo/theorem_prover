@@ -11,33 +11,41 @@ from lean_dojo import *
 from pathlib import Path
 from tqdm import tqdm, trange
 
-from qwenmax import call_qwen
+from qwenmax import call_qwen, call_qwen_raw
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 
 def generate_vllm(prompt, model, tokenizer, temperatures, num_samples, stop, max_tokens=256):
     texts, scores = [], []
-    for temperature in temperatures:
-        # params = vllm.SamplingParams(
-        #     n=num_samples,
-        #     temperature=temperature,
-        #     use_beam_search=temperature==0.0,
-        #     max_tokens=max_tokens,
-        #     stop=stop,
-        # )
-        # outputs = model.generate([prompt], params, use_tqdm=False)
-        # if len(outputs) == 0:
-        #     return [], []
-        # for output in outputs[0].outputs:
-        #     text = output.text.replace(tokenizer.eos_token, '')
-        #     score = output.cumulative_logprob/max(len(output.token_ids), 1)
-        #     texts.append(text)
-        #     scores.append(score)
-        text = call_qwen(prompt, temperature)
-        score=0.1
-        texts.append(text)
-        scores.append(score)
+    for sample in range(num_samples):
+        for temperature in temperatures:
+            # params = vllm.SamplingParams(
+            #     n=num_samples,
+            #     temperature=temperature,
+            #     use_beam_search=temperature==0.0,
+            #     max_tokens=max_tokens,
+            #     stop=stop,
+            # )
+            # outputs = model.generate([prompt], params, use_tqdm=False)
+            # if len(outputs) == 0:
+            #     return [], []
+            # for output in outputs[0].outputs:
+            #     text = output.text.replace(tokenizer.eos_token, '')
+            #     score = output.cumulative_logprob/max(len(output.token_ids), 1)
+            #     texts.append(text)
+            #     scores.append(score)
+            text = call_qwen(prompt, temperature,system_prompt='请简介回答')
+            if '```lean' in text:
+                text=text.split("```lean")[1].split("```")[0].strip()
+            for line in text.split("\n"):
+                if line.startswith('-- '):
+                    continue
+                else:
+                    text=line
+            score=0.1
+            texts.append(text)
+            scores.append(score)
 
     texts, scores = _unique_sorted(texts, scores)
     return texts, scores

@@ -63,7 +63,21 @@ lean-dojo 还会遇到超时的问题
 大量的leandojo的配置都是linux的,比如并行,在window上无法运行
 还有一个ast文件跟库面的冲突,可以rename成ast_new
 
-而且其重点就是从git将repo拖下来之后,用lake build
 由于网络太慢,可以自己从github上,拖
 1. lean的4.7.0版本,放到 用户/.elan后面, 用elan show可以看版本
 2. matlib的4.7.0版本,放到.lake里面 https://github.com/leanprover-community/mathlib4/releases/tag/v4.7.0 lake (好像不行)
+
+    
+    # following command can replace _trace
+    python lean_dojo/data_extraction/build_lean4_repo.py repos/lean-dojo-mew --no-deps
+    # 这里面有一个lake build 一个安装matlib，一个拷贝lean的标准库到packages，然后lake env lean --threads 6 --run ExtractData.lean noDeps
+
+它会在initial之后，将目标定理改成 lean_dojo_repl，然后准备一个Lean4Repl.lean文件，然后改了lakefile.lean，在里面加入对这个文件的依赖
+    set_option maxHeartbeats 0 in
+    theorem imo_1997_p5 (x y : ℕ) (h₀ : 0 < x ∧ 0 < y) (h₁ : x ^ y ^ 2 = y ^ x) :
+        (x, y) = (1, 1) ∨ (x, y) = (16, 2) ∨ (x, y) = (27, 3) := 
+    by
+        lean_dojo_repl
+        sorry
+这一堆事情其实都应该在一个临时目录中做，不要动原始的repo
+

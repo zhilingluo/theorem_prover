@@ -21,7 +21,7 @@ from ..constants import (
 from ..utils import to_json_path
 from .parse_goals import parse_goals, Goal
 from ..data_extraction.traced_data import TracedFile
-from ..data_extraction.trace import get_traced_repo_path
+from ..data_extraction.trace import get_traced_repo_path, get_local_traced_repo_path
 from ..data_extraction.lean import Theorem, LeanGitRepo, Pos
 from ..container import get_container, Mount, NativeContainer, DockerContainer
 
@@ -176,23 +176,26 @@ class Dojo:
         # Work in a temporary directory.
         self.origin_dir = Path.cwd()
         self.tmp_dir = Path(mkdtemp(dir=TMP_DIR))
-
+        self.path=self.origin_dir.parent.joinpath(self.repo.url).absolute()
+        self.workspace=self.origin_dir.parent.joinpath("workspace").absolute()
         try:
             self._install_handlers()
-            #os.chdir(self.tmp_dir)
+            os.chdir(self.tmp_dir)
 
             # Copy and `cd` into the repo.
-            traced_repo_path = get_traced_repo_path(self.repo)
+            traced_repo_path = get_local_traced_repo_path(self.path)
             shutil.copytree(
                 traced_repo_path,
                 self.repo.name,
-                ignore=ignore_patterns("*.dep_paths", "*.ast.json", "*.trace.xml"),
-            )
-            os.chdir(self.repo.name)
+                #ignore=ignore_patterns("*.dep_paths", "*.ast.json", "*.trace.xml"),
 
+            )
+            #os.chdir("../")
+            os.chdir(self.repo.name)
+            temp_path = self.tmp_dir.joinpath(self.repo.url).absolute()
             # Replace the human-written proof with a `repl` tactic.
             try:
-                traced_file = self._locate_traced_file(traced_repo_path)
+                traced_file = self._locate_traced_file(temp_path)
             except FileNotFoundError:
                 raise DojoInitError(
                     f"Cannot find the *.ast.json file for {self.entry} in {traced_repo_path}."
@@ -203,13 +206,13 @@ class Dojo:
             # Run the modified file in a container.
             self.container = get_container()
             logger.debug(f"Launching the proof using {type(self.container)}")
-            mts = [Mount(Path.cwd(), Path(f"/workspace/{self.repo.name}"))]
+            mts = [Mount(Path.cwd(), self.workspace)]
             self.container.run(
                 "lake build Lean4Repl",
                 mts,
                 as_current_user=True,
                 capture_output=True,
-                work_dir=f"/workspace/{self.repo.name}",
+                work_dir=self.workspace,
                 cpu_limit=None,
                 memory_limit=None,
                 envs={},
@@ -223,7 +226,7 @@ class Dojo:
                 mts,
                 cpu_limit=None,
                 memory_limit=None,
-                work_dir=f"/workspace/{self.repo.name}",
+                work_dir=self.workspace,
                 as_current_user=True,
                 envs={},
             )
@@ -260,6 +263,7 @@ class Dojo:
             return self, init_state
 
         except Exception as ex:
+
             os.chdir(self.origin_dir)
             shutil.rmtree(self.tmp_dir)
             raise ex

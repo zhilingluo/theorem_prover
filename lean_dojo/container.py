@@ -178,13 +178,15 @@ class NativeContainer(Container):
         assert memory_limit is None, "NativeContainer does not support memory limit."
         assert cpu_limit is None, "NativeContainer does not support CPU limit."
 
-        #self._mount_files(mounts)
+        self._mount_files(mounts)
 
         cmd = self._build_native_command(command, envs)
         logger.debug(cmd)
 
         if work_dir is None:
             work_dir = Path.cwd().parent
+        elif work_dir=='Current':
+            work_dir = Path.cwd()
         else:
             work_dir = Path(work_dir)
             if work_dir.is_absolute():
@@ -193,7 +195,7 @@ class NativeContainer(Container):
         with working_directory(work_dir):
             execute(cmd, capture_output=capture_output)
 
-        #self._unmount_files(mounts)
+        self._unmount_files(mounts)
 
     def run_interactive(
         self,
@@ -214,6 +216,8 @@ class NativeContainer(Container):
         logger.debug(cmd)
 
         if work_dir is None:
+            work_dir = Path.cwd()
+        elif work_dir=='Current':
             work_dir = Path.cwd()
         else:
             work_dir = Path(work_dir)

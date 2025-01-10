@@ -602,7 +602,7 @@ class LeanGitRepo:
 
 def read_local(path):
     content=""
-    with open(os.getcwd()+"../../"+path,'r') as f:
+    with open(os.getcwd()+"/../"+path,'r') as f:
         content='\n'.join(f.readlines())
     return content
 @dataclass(frozen=True)

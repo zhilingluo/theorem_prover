@@ -160,6 +160,7 @@ def main() -> None:
 
     num_procs = 6#int(os.environ["NUM_PROCS"])
     repo_name = args.repo_name
+    shutil.copy('lean_dojo/data_extraction/ExtractData.lean', repo_name+'/ExtractData.lean')
     os.chdir(repo_name)
 
     # Build the repo using lake.
@@ -180,7 +181,8 @@ def main() -> None:
     else:
         packages_path = "lake-packages"
         build_path = "build"
-    shutil.copytree(lean_prefix, f"{packages_path}/lean4")
+    if not os.path.exists(f'{packages_path}/lean4'):
+        shutil.copytree(lean_prefix, f"{packages_path}/lean4")
 
     # Run ExtractData.lean to extract ASTs, tactic states, and premise information.
     dirs_to_monitor = [build_path]

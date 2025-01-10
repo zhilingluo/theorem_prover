@@ -61,7 +61,8 @@ def is_available_in_cache(repo: LeanGitRepo) -> bool:
     """Check if ``repo`` has a traced repo available in the cache (including the remote cache)."""
     return cache.get(repo.url, repo.commit) is not None
 
-
+def get_local_traced_repo_path(path_str: str) -> Path:
+    return Path(path_str)
 def get_traced_repo_path(repo: LeanGitRepo, build_deps: bool = True) -> Path:
     """Return the path of a traced repo in the cache.
 
@@ -82,9 +83,11 @@ def get_traced_repo_path(repo: LeanGitRepo, build_deps: bool = True) -> Path:
         tmp_dir =Path.cwd()
         #with working_directory() as tmp_dir:
         logger.debug(f"Working in the temporary directory {tmp_dir}")
-        _trace(repo, build_deps)
-        traced_repo = TracedRepo.from_traced_files(tmp_dir / repo.name, build_deps)
-        traced_repo.save_to_disk()
+        #_trace(repo, build_deps)# i use python lean_dojo/data_extraction/build_lean4_repo.py
+        #traced_repo = TracedRepo.from_traced_files(tmp_dir / repo.name, build_deps)
+        #traced_repo.save_to_disk()
+        #path = Path(repo.url)
+        #path=Path("")
         path = cache.store(tmp_dir / repo.name)
     else:
         logger.debug("The traced repo is available in the cache.")
