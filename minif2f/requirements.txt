@@ -2,4 +2,9 @@ tqdm
 dashscope
 ray
 loguru
-dotenv
+filelock
+python-dotenv
+toml
+pygithub
+networkx
+lxml

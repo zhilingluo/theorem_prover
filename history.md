@@ -92,6 +92,8 @@ message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三�
 
 棒棒的github镜像! https://gitclone.com/  感谢他们
 
+## 2025-1-11
+试用aws的ec服务器,也许访问git会快一些,我顺便记下这一些安装的命令
 
     # install elan on linux
     curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
@@ -101,4 +103,9 @@ message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三�
     powershell -ExecutionPolicy Bypass -f elan-init.ps1
     del elan-init.ps1
 
-    e
+    # install python on linux
+    sudo yum install python3
+    sudo yum install pip3
+    
+    # install python packages
+    pip3 install -r minif2f/requirements.txt
