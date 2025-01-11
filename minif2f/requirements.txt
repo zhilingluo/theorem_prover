@@ -1,2 +1,5 @@
-lean-dojo==1.7.0
-torch==2.2.1
+tqdm
+dashscope
+ray
+loguru
+dotenv

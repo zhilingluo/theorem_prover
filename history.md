@@ -91,3 +91,14 @@ lean-dojo 还会遇到超时的问题
 message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三个的格式是对的,我试着增加了一些后处理代码,这也不太靠谱
 
 棒棒的github镜像! https://gitclone.com/  感谢他们
+
+
+    # install elan on linux
+    curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
+
+    # install elan on windows
+    curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1
+    powershell -ExecutionPolicy Bypass -f elan-init.ps1
+    del elan-init.ps1
+
+    e
