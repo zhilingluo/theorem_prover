@@ -91,6 +91,7 @@ lean-dojo 还会遇到超时的问题
 message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三个的格式是对的,我试着增加了一些后处理代码,这也不太靠谱
 
 棒棒的github镜像! https://gitclone.com/  感谢他们
+还有这个文件加速 https://ghp.quickso.cn/ 感恩
 
 ## 2025-1-11
 试用aws的ec服务器,也许访问git会快一些,我顺便记下这一些安装的命令
@@ -109,3 +110,16 @@ message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三�
     
     # install python packages
     pip3 install -r minif2f/requirements.txt
+
+上帝啊,AWS送的机器连接github很快,但是CPU是真的慢啊,一个lake build就很久很久
+
+又回到qwenmax的格式问题了,我设置调用llm 32次, 一个定理需要6min,这是每条都不对的情况,如果有对的,还进一步的探索,时间未知
+
+遇到了一个异常
+    requests.exceptions.ProxyError: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Max retries exceeded with url: /api/v1/services/aigc/text-generation/generation (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+
+看起来是有一个max retries的限制
+
+我加了一个异常处理
+
+顺便换成了qwen-turbo, 速度变成了 400s一条
