@@ -29,3 +29,9 @@ lean-dojo user guide https://leandojo.readthedocs.io/en/latest/user-guide.html
 PutnamBench leaderboard https://trishullab.github.io/PutnamBench/leaderboard.html
 
 lean-dojo-chatgpt https://github.com/lean-dojo/LeanDojoChatGPT
+
+minif2f paperwithcode https://paperswithcode.com/sota/automated-theorem-proving-on-minif2f-test
+
+minif2f online version https://github.com/facebookresearch/miniF2F/blob/main/lean/src/test.lean
+
+report on leanagent https://www.163.com/dy/article/JEA483D80511ABV6.html

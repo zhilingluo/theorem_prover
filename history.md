@@ -123,3 +123,22 @@ message模式调用qwenmax的格式对齐非常糟糕,十个里面只有两三�
 我加了一个异常处理
 
 顺便换成了qwen-turbo, 速度变成了 400s一条
+
+## 2025-01-13
+用qwen-turbo跑完了miniF2F的Test.lean,总计30个定理,用时2:58:00,其中每个sample32次,其中的到了一个正确的
+
+    theorem mathd_numbertheory_175 : 2 ^ 2010 % 10 = 4:=
+    norm_num
+
+这个看似不复杂的证明,貌似之前还没有人提交过
+
+棒棒的,证明这个路子不是死路,而是我们的效率太低,解决效率问题是这个的关键
+
+我打算用vscode验证一下之后提交给 https://github.com/facebookresearch/miniF2F/blob/main/lean/src/test.lean
+
+注意到这是一个lean3的库,而且已经没有新的提交了,看起来这块在lean3上已经没有更新了
+
+将minif2f迁移到lean4 上的git是 https://github.com/yangky11/miniF2F-lean4  
+
+注意到这个git实际上已经变成了一个测试集,没有人提交正确答案
+
