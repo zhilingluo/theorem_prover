@@ -11,44 +11,17 @@ from lean_dojo import *
 from pathlib import Path
 from tqdm import tqdm, trange
 
+from minif2f.data_collector import DataCollector
+from minif2f.virtualllm import generate_by_virtual_LLM
 from qwenmax import call_qwen, call_qwen_raw
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 
 def generate_vllm(prompt, model, tokenizer, temperatures, num_samples, stop, max_tokens=256):
-    texts, scores = [], []
-    for sample in range(num_samples):
-        for temperature in temperatures:
-            # params = vllm.SamplingParams(
-            #     n=num_samples,
-            #     temperature=temperature,
-            #     use_beam_search=temperature==0.0,
-            #     max_tokens=max_tokens,
-            #     stop=stop,
-            # )
-            # outputs = model.generate([prompt], params, use_tqdm=False)
-            # if len(outputs) == 0:
-            #     return [], []
-            # for output in outputs[0].outputs:
-            #     text = output.text.replace(tokenizer.eos_token, '')
-            #     score = output.cumulative_logprob/max(len(output.token_ids), 1)
-            #     texts.append(text)
-            #     scores.append(score)
-            text = call_qwen(prompt, temperature,system_prompt='请简介回答')
-            if '```lean' in text:
-                text=text.split("```lean")[1].split("```")[0].strip()
-            for line in text.split("\n"):
-                if line.startswith('-- '):
-                    continue
-                else:
-                    text=line
-            score=0.1
-            texts.append(text)
-            scores.append(score)
-
-    texts, scores = _unique_sorted(texts, scores)
-    return texts, scores
+    texts, scores,llm_labels = generate_by_virtual_LLM(prompt,temperatures,num_samples)
+    #texts, scores = _unique_sorted(texts, scores)
+    return texts, scores,llm_labels
 
 
 def _unique_sorted(texts, scores):
@@ -69,51 +42,6 @@ def _tactic_state(state):
     return ts
 
 
-def _prompt_fewshot(ts):
-    prompt = """Tactic state:
----
-α : Type u_1
-r : α → α → Prop
-inst✝¹ : DecidableEq α
-inst✝ : IsIrrefl α r
-⊢ CutExpand r ≤ InvImage (Finsupp.Lex (rᶜ ⊓ fun x x_1 => x ≠ x_1) fun x x_1 => x < x_1) ↑toFinsupp
----
-Next tactic:
----
-rintro s t ⟨u, a, hr, he⟩
----
-
-Tactic state:
----
-ι : Type u_1
-I✝ J✝ : Box ι
-x y : ι → ℝ
-I J : WithBot (Box ι)
-⊢ ↑I = ↑J ↔ I = J
----
-Next tactic:
----
-simp only [Subset.antisymm_iff, ← le_antisymm_iff, withBotCoe_subset_iff]
----
-
-Tactic state:
----
-m n : ℕ
-h : Nat.coprime m n
-⊢ Nat.gcd m n = 1
----
-Next tactic:
----
-rw [← h.gcd_eq_one]
----
-
-Tactic state:
----
-%s
----
-Next tactic:
----\n""" % (ts)
-    return prompt
 
 
 def best_first_search(
@@ -146,8 +74,8 @@ def best_first_search(
                 ts = _tactic_state(state)
                 visited.add(ts)
 
-                step_cands, step_scores = generate_vllm(
-                    prompt_fn(ts),
+                step_cands, step_scores,llm_labels = generate_vllm(
+                    ts,
                     model,
                     tokenizer,
                     temperatures,
@@ -157,13 +85,13 @@ def best_first_search(
                 )
                 step_cands = [s.strip() for s in step_cands]
 
-                for step, score in zip(step_cands, step_scores):
+                for step, score,llm_label in zip(step_cands, step_scores,llm_labels):
                     result = dojo.run_tac(state, step)
                     step_trace = {
                         "tactic": step,
                         "state_before": _tactic_state(state)
                     }
-                    if isinstance(result, ProofFinished):
+                    if isinstance(result, ProofFinished):# if the proof is finished
                         attempt_results.append({
                             'theorem': theorem.full_name,
                             'proof': steps + [step],
@@ -178,14 +106,19 @@ def best_first_search(
                         if early_stop:
                             return attempt_results
                         proof_finished = True
+                        dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after="",is_correct=True,is_finish=True)
                         break
-                    elif isinstance(result, TacticState):
+                    elif isinstance(result, TacticState):# if the
                         if _tactic_state(result) not in visited:
                             # Score is negative log probability summed across steps
                             new_score = (total_score - score)
                             heapq.heappush(
                                 queue, (new_score, steps+[step], result, trace+[step_trace])
                             )
+                            dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after=result.pp,is_correct=True,is_finish=False)
+                    elif isinstance(result,LeanError):
+                        # this is an obvious nega sample
+                        dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after="",is_correct=False,is_finish=False)
     except (DojoInitError, DojoHardTimeoutError, DojoCrashError, subprocess.CalledProcessError) as e:
         if len(attempt_results) == 0:
             attempt_results.append({
@@ -269,7 +202,7 @@ def make_output_dir(output_dir):
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     return output_dir
 
-
+dc = DataCollector()
 if __name__ == '__main__':
     import argparse
 
@@ -294,12 +227,12 @@ if __name__ == '__main__':
     parser.add_argument('--early-stop', action='store_true')
     parser.add_argument('--tp-degree', type=int, default=1)
     parser.add_argument('--num-shards', type=int, default=8)
-    parser.add_argument('--max-iters', type=int, default=100)
+    parser.add_argument('--max-iters', type=int, default=400)
     parser.add_argument('--timeout', type=int, default=600)
     parser.add_argument('--num-examples', type=int, default=-1)
-    parser.add_argument('--num-samples', type=int, default=32)
+    parser.add_argument('--num-samples', type=int, default=8)
     parser.add_argument('--clear-process-hours', type=int, default=3)
-    parser.add_argument('--temperatures', type=float, nargs='+', default=[0.0])
+    parser.add_argument('--temperatures', type=float, nargs='+', default=[0.5])
     args = parser.parse_args()
     model, tokenizer = None,None#_load_model(args.model_name, args.tp_degree)
     output_dir = make_output_dir(args.output_dir)
@@ -322,7 +255,7 @@ if __name__ == '__main__':
         attempt_results = best_first_search(
             theorem, model, tokenizer,
             max_iters=args.max_iters,
-            prompt_fn=_prompt_fewshot,
+            prompt_fn=None,
             temperatures=args.temperatures,
             num_samples=args.num_samples,
             timeout=args.timeout,

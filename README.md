@@ -15,6 +15,8 @@ Contributing to formal theorem proving in GitHub repos
 
 The process is [Here](/history.md)
 
+My LLM proved 13 theorems of 30 in minif2f. 👏🏻
+
 ## Ref
 
 [Ref](/ref.md)
