@@ -1,9 +1,10 @@
+from minif2f.constant import QWEN_SYSTEM_PROMPT
 from minif2f.ft_model_call import call_ft_v0, call_ft_v1
 from minif2f.qwenmax import call_qwen
 import math
 from concurrent.futures import ThreadPoolExecutor
 
-QWEN_SYSTEM_PROMPT= '请简洁回答'
+
 DEFAULT_SCORE=0.1
 def call_qwen_llm(prompt,temperatures,num_samples):
     # it calls qwen_turbo

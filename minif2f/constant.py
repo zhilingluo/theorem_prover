@@ -1,0 +1,1 @@
+QWEN_SYSTEM_PROMPT= '请简洁回答'
