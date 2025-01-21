@@ -1,11 +1,24 @@
 import json
 
 from minif2f.constant import QWEN_SYSTEM_PROMPT
+def read_collect_file(filename):
+    collect_file = 'collects/report_2025-01-15_20-11-30.txt'
+    with open(collect_file, 'r') as f:
+        js_raw = json.load(f)
 
-collect_file='collects/report_2025-01-15_20-11-30.txt'
-with open(collect_file,'r') as f:
-    js_raw=json.load(f)
+    return js_raw
+js_raw=[]
+for filename  in ['collects/report_2025-01-15_20-11-30.txt','collects/report_2025-01-15_17-04-54.txt']:
+    js_raw+=read_collect_file(filename)
+def unique(js_raw):
+    unique_list = []
 
+    for item in js_raw:
+        if item not in unique_list:
+            unique_list.append(item)
+
+    return unique_list
+js_raw=unique(js_raw)
 def message_builder(chosen_js,rejected_js):
     js={
         "prompt":[{'role':"system","content":QWEN_SYSTEM_PROMPT},
@@ -27,13 +40,12 @@ def search(state_before,state_after,js_raw):
 
     chosen_js=[]
     rejected_js=[]
-    # search pos
     for js in js_raw:
         if js['state_before']==state_before and js['is_correct']==True and js['state_after']==state_after:
             chosen_js.append(js)
 
     for js in js_raw:
-        if js['state_before']==state_before and js['is_correct']==False:
+        if js['state_before']==state_before :#$and js['is_correct']==False:
             rejected_js.append(js)
 
     for chosen in chosen_js:

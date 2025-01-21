@@ -261,4 +261,9 @@ bvtarge v target
 
 这玩意儿,只需要三个字段 prompt,chosen,rejected
 
+注意到report_2025-01-15_20-11-30.txt 这玩意儿有834条样本,但是做成DPO只有58条,实在是太少了
+
+## 2025-01-21
+
+我首先是试着在M0上进一步DPO
 
