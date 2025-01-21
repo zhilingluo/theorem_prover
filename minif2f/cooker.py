@@ -45,7 +45,7 @@ def search(state_before,state_after,js_raw):
             chosen_js.append(js)
 
     for js in js_raw:
-        if js['state_before']==state_before :#$and js['is_correct']==False:
+        if js['state_before']==state_before and js not in chosen_js:
             rejected_js.append(js)
 
     for chosen in chosen_js:
