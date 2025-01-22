@@ -115,10 +115,11 @@ def best_first_search(
                             heapq.heappush(
                                 queue, (new_score, steps+[step], result, trace+[step_trace])
                             )
-                            dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after=result.pp,is_correct=True,is_finish=False)
+                        dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after=result.pp,is_correct=True,is_finish=False)
                     elif isinstance(result,LeanError):
                         # this is an obvious nega sample
                         dc.log(tactic=step,state_before=step_trace['state_before'],llm_label=llm_label,state_after="",is_correct=False,is_finish=False)
+
     except (DojoInitError, DojoHardTimeoutError, DojoCrashError, subprocess.CalledProcessError) as e:
         if len(attempt_results) == 0:
             attempt_results.append({
