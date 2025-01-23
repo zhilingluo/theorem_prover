@@ -306,3 +306,12 @@ bvtarge v target
     {'train_runtime': 202.8681, 'train_samples_per_second': 5.028, 'train_steps_per_second': 0.148, 'train_loss': 2.252799479166667, 'epoch': 7.62} 
 
 评测的结果是,对了14题,比之前那个要好些,结果在 output/minif2f/22-01-2025-17-09/results__qwenmax__1.json 数据在 report_2025-01-22_17-09-27.txt
+
+## 2025-01-23
+考虑将探索的数据和adaption阶段的sft数据合并训练
+
+我准备一个cooker_sft.py,加工出sft数据来
+
+结果也只有23条数据
+
+我试一下把这个sft的结果

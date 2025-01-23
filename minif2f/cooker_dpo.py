@@ -9,7 +9,7 @@ def read_collect_file(filename):
     return js_raw
 js_raw=[]
 file_list =['collects/report_2025-01-15_20-11-30.txt','collects/report_2025-01-15_17-04-54.txt']
-file_list=['collects/report_2025-01-22_11-49-48.txt']
+file_list=['collects/report_2025-01-22_11-49-48.txt','collects/report_2025-01-15_20-11-30.txt','collects/report_2025-01-15_17-04-54.txt','report_2025-01-22_17-09-27.txt']
 for filename  in file_list:
     js_raw+=read_collect_file(filename)
 def unique(js_raw):
