@@ -24,7 +24,7 @@ js_raw=unique(js_raw)
 def message_builder(chosen_js):
     js={
         "messages":[{'role':"system","content":QWEN_SYSTEM_PROMPT},
-                  {'role':"user","content":chosen_js['state_before']},
+                  {'role':"user","content":"Tactic state:\n---\n"+chosen_js['state_before']+"\n---\nNext tactic:\n---"},
                     {'role':"assistant","content":chosen_js['tactic']}]
     }
     return js

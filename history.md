@@ -312,6 +312,10 @@ bvtarge v target
 
 我准备一个cooker_sft.py,加工出sft数据来
 
-结果也只有23条数据
+结果也只有23条数据,我用这个数据在M0上进一步sft,然后开始部署和测试
 
-我试一下把这个sft的结果
+实验结果是12题,output/minif2f/23-01-2025-14-08/results__qwenmax__1.json, 数据在report_2025-01-23_14-08-45.txt
+
+
+
+我引入gpt来做反向cot构造,并且再做一次recheck,效率很低,大约1分钟一条,大约需要17天
