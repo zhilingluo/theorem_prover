@@ -35,3 +35,5 @@ minif2f paperwithcode https://paperswithcode.com/sota/automated-theorem-proving-
 minif2f online version https://github.com/facebookresearch/miniF2F/blob/main/lean/src/test.lean
 
 report on leanagent https://www.163.com/dy/article/JEA483D80511ABV6.html
+
+deepseek-R1 https://arxiv.org/abs/2501.12948

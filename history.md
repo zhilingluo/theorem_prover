@@ -319,3 +319,70 @@ bvtarge v target
 
 
 我引入gpt来做反向cot构造,并且再做一次recheck,效率很低,大约1分钟一条,大约需要17天
+
+
+## 2025-01-27
+
+我仔细读了deepseek那篇论文 https://arxiv.org/abs/2501.12948
+
+几个有趣的参考是
+
+1. 直接在非推理的小尺寸模型上的rft可能不如在更大尺寸上做，或者可以在推理模型上做
+2. 其训练过程采用GRPO或者PPO其实都可以，重点是是freeze了valuemodel
+3. 采样过程simple，不要去用复杂的mcts
+4. 目前TRL逐步在支持GRPO，届时就会可以像SFT一样去调用RFT，这个重点在于工程开发
+5. 如果TRL的建设符合预期，此时的重点就在与数据的构建，无论是数据增增广还是数据配置策略可能都是未被公开的重点细节，而且是开源社区的工程建设所不能触及的，所以我可以先把lean的这个RFT的集子做起来。
+
+可以先对齐到这个版本 https://github.com/huggingface/trl/blob/grpo_vllm/docs/source/grpo_trainer.md
+
+参考这个做数据准备
+
+然后推理模型的基础模型，我可以选择一个14b的，比如https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+
+同步下载这个模型
+
+
+## 2025-02-05
+TRL已经将GRPO集成了，果然都是在跟时间赛跑啊，不过对我来说就很方便了，只需要更新TRL，准备数据集就可以直接用GRPO了
+
+注意几个reward函数
+
+比如format reward
+
+    import re
+    
+    def format_reward_func(completions, **kwargs):
+        """Reward function that checks if the completion has a specific format."""
+        pattern = r"^<think>.*?</think><answer>.*?</answer>$"
+        completion_contents = [completion[0]["content"] for completion in completions]
+        matches = [re.match(pattern, content) for content in completion_contents]
+        return [1.0 if match else 0.0 for match in matches]
+
+比如accuracy reward
+
+    import re
+    
+    def reward_func(completions, ground_truth, **kwargs):
+        # Regular expression to capture content inside \boxed{}
+        matches = [re.search(r"\\boxed\{(.*?)\}", completion) for completion in completions]
+        contents = [match.group(1) if match else "" for match in matches]
+        # Reward 1 if the content is the same as the ground truth, 0 otherwise
+        return [1.0 if c == gt else 0.0 for c, gt in zip(contents, ground_truth)]
+
+TRL跟deepspeed一起用的时候 GRPO和PPO都有个异常，是关于 
+self.warmup_num_steps = max(2, warmup_num_steps)
+[rank0]: TypeError: '>' not supported between instances of 'str' and 'int'
+
+这个主要是ds的配置中的auto在TRL中初始化报错，他是真的穿了一个auto，这玩意儿是个字符串
+参考是 https://github.com/LianjiaTech/BELLE/issues/558
+修改方法是将ds的配置中修改了那个steps
+
+
+    "scheduler": {
+        "type": "WarmupLR",
+        "params": {
+            "warmup_min_lr": "auto",
+            "warmup_max_lr": "auto",
+            "warmup_num_steps": 10
+        }
+    },
