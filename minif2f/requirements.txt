@@ -8,3 +8,5 @@ toml
 pygithub
 networkx
 lxml
+vllm
+transformers

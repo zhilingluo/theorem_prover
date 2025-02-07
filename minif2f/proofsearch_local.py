@@ -13,11 +13,18 @@ from pathlib import Path
 from tqdm import tqdm, trange
 
 from minif2f.data_collector import DataCollector
-from minif2f.virtualllm import generate_by_virtual_LLM
-from qwenmax import call_qwen, call_qwen_raw
+from minif2f.training.prompt import system_prompts
+
+#from minif2f.virtualllm import generate_by_virtual_LLM
+#from qwenmax import call_qwen, call_qwen_raw
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
-
+import re
+def extract_lean(text):
+    match = re.search(r"<answer>.*?```lean\n(.*?)\n```.*?</answer>", text, re.DOTALL)
+    # matches = [re.search(r"```lean\n(.*?)\n```", completion) for completion in completion_contents]
+    content = match.group(1) if match else ""
+    return content
 
 def generate_vllm(prompt, model, tokenizer, temperatures, num_samples, stop, max_tokens=256):
     texts, scores = [], []
@@ -35,13 +42,35 @@ def generate_vllm(prompt, model, tokenizer, temperatures, num_samples, stop, max
         for output in outputs[0].outputs:
             text = output.text.replace(tokenizer.eos_token, '')
             score = output.cumulative_logprob/max(len(output.token_ids), 1)
+
+            text = extract_lean(text)
             texts.append(text)
             scores.append(score)
 
     texts, scores = _unique_sorted(texts, scores)
     return texts, scores
 
+def user_prompt_0shot(ts):
+    prompt = """Tactic state:
+---
+%s
+---
+Next tactic:
+---\n""" % (ts)
+    return prompt
 
+def prompt_to_messages(prompt):
+    messages = [
+        {
+            'role':'system',
+            'content':system_prompts
+        },
+        {
+            'role':'user',
+            'content':prompt
+        }
+    ]
+    return json.dumps(messages)
 def _unique_sorted(texts, scores):
     texts_ = []
     scores_ = []
@@ -92,9 +121,10 @@ def best_first_search(
                 total_score, steps, state, trace = heapq.heappop(queue)
                 ts = _tactic_state(state)
                 visited.add(ts)
-
+                prompt=user_prompt_0shot(ts)
+                messages = prompt_to_messages(prompt)
                 step_cands, step_scores = generate_vllm(
-                    ts,
+                    messages,
                     model,
                     tokenizer,
                     temperatures,
@@ -176,7 +206,7 @@ def _load_model(model_name, tp_degree):
         model=model_name,
         tensor_parallel_size=tp_degree,
          dtype='bfloat16',
-         max_num_batched_tokens=8192,
+         max_num_batched_tokens=32768,
          trust_remote_code=True,
          enforce_eager=True
     )
@@ -229,9 +259,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model-name', 
-        choices=[
-            'qwenmax'
-        ],
         default='qwenmax'#,
         #required=True
     )

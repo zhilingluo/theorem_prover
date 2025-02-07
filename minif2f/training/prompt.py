@@ -1,0 +1,1 @@
+system_prompts = "你需要完成lean4的证明，请思考之后根据当前状态，给出下一步的策略，格式为<think>你的思考过程</think><answer>```lean\n你的策略\n```</answer>"
