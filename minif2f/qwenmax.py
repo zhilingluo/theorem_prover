@@ -12,13 +12,13 @@ from http import HTTPStatus
 
 from requests.exceptions import ProxyError
 
-dashscope.api_key =os.environ['dashscope_key']
+dashscope.api_key ="sk-858b6321ed894be29c06aa1f6ef7b76c"
 
 default_model='qwen-turbo'
 
 def call_qwen_raw(prompt,temperature):
     response = dashscope.Generation.call(
-        "qwen-max",
+        "qwen-turbo",
         messages=[prompt],
         # set the random seed, optional, default to 1234 if not set
         seed=random.randint(1, 10000),

@@ -10,6 +10,8 @@ LLM在formal math reasoning的leaderboard https://trishullab.github.io/PutnamBen
 
 InternLM-math https://github.com/InternLM/InternLM-Math
 
+lean-workbook https://huggingface.co/datasets/internlm/Lean-Workbook
+
 Llemma formal2formal https://github.com/wellecks/llemma_formal2formal
 
 miniF2F by meta https://github.com/facebookresearch/miniF2F/tree/88b0189c213f3bd4b020c215f5bf0d847ee8d7a0

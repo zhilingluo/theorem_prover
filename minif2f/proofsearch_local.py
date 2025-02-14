@@ -30,19 +30,19 @@ def generate_vllm(prompt, model, tokenizer, temperatures, num_samples, stop, max
     texts, scores = [], []
     for temperature in temperatures:
         params = vllm.SamplingParams(
+            #beam_width=4,
             n=num_samples,
             temperature=temperature,
-            use_beam_search=temperature==0.0,
             max_tokens=max_tokens,
-            stop=stop,
+            #stop=stop,
         )
-        outputs = model.generate([prompt], params, use_tqdm=False)
+        outputs = model.generate(prompt, params, use_tqdm=False)
         if len(outputs) == 0:
             return [], []
         for output in outputs[0].outputs:
             text = output.text.replace(tokenizer.eos_token, '')
-            score = output.cumulative_logprob/max(len(output.token_ids), 1)
-
+            #score = output.cumulative_logprob/max(len(output.token_ids), 1)
+            score=0.1
             text = extract_lean(text)
             texts.append(text)
             scores.append(score)
@@ -203,10 +203,10 @@ def _save(model_name, results, args_dict, output_dir, shard):
 
 def _load_model(model_name, tp_degree):
     model = vllm.LLM(
-        model=model_name,
+            model=model_name,
         tensor_parallel_size=tp_degree,
-         dtype='bfloat16',
-         max_num_batched_tokens=32768,
+         #dtype='bfloat16',
+         #max_num_batched_tokens=32768,
          trust_remote_code=True,
          enforce_eager=True
     )
@@ -259,7 +259,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--model-name', 
-        default='qwenmax'#,
+        default='/Users/luozhiling/models/sft_math'#,
         #required=True
     )
     parser.add_argument(

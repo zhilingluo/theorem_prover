@@ -1,5 +1,7 @@
-import openai
+import os
 
+import openai
+print(os.environ)
 from minif2f.proofsearch_qwenmax import generate_vllm
 
 prompt='''Tactic state:

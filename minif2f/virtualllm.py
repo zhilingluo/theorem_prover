@@ -60,7 +60,26 @@ def call_qwen_ft1_raw(prompt,temperatures,num_samples):
             texts.append(text)
             scores.append(score)
     return texts, scores
+def call_dqwen(prompt, temperatures, num_samples):
+    texts, scores = [], []
 
+    def generate_text(sample, temperature):
+        text = call_ft_v1(user_prompt_0shot(prompt), temperature).strip()
+        score = DEFAULT_SCORE
+        return text, score
+
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for sample in range(num_samples):
+            for temperature in temperatures:
+                futures.append(executor.submit(generate_text, sample, temperature))
+
+        for future in futures:
+            text, score = future.result()
+            texts.append(text)
+            scores.append(score)
+
+    return texts, scores
 def call_qwen_ft1(prompt, temperatures, num_samples):
     texts, scores = [], []
 
@@ -174,6 +193,7 @@ def generate_by_virtual_LLM(prompt,temperatures,num_samples):
     texts, scores,llm_labels = [], [],[]
     llm_list = ['qwen_llm']
     llm_list = ['qwen_ft0','qwen_ft1']
+    llm_list = ['dqwen']
     num_samples_per_llm = math.floor(num_samples/len(llm_list))
     residence = num_samples-num_samples_per_llm*len(llm_list)
     num_samples_list = []
